@@ -12,7 +12,7 @@ from watchdog.events import FileSystemEventHandler
 API_KEY = '0e5f0c7f851381c8dbce5aad267fdec7d90f9aae38c14e21af93b353406a8a89'
 SCAN_URL = 'https://www.virustotal.com/vtapi/v2/file/scan'
 REPORT_URL = 'https://www.virustotal.com/vtapi/v2/file/report'
-MAX_SIZE_MB = 32
+MAX_SIZE_MB = 31
 MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024
 
 
@@ -166,6 +166,8 @@ class VirusScannerGUI:
 
     # סריקה אוטומטית לקובץ חדש
     def auto_scan_file(self, file_path):
+        
+
         filename = os.path.basename(file_path)
         self.output_text.insert(tk.END, f"\n📥 New file detected: {filename}\n")
         self.root.update()
