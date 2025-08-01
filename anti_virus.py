@@ -166,49 +166,61 @@ class VirusScannerGUI:
 
     # סריקה אוטומטית לקובץ חדש
     def auto_scan_file(self, file_path):
-        
-
+        file_path = os.path.normpath(file_path)
         filename = os.path.basename(file_path)
+
+        if not os.path.exists(file_path) or not os.access(file_path, os.R_OK):
+            self.output_text.insert(tk.END, f"❌ File inaccessible: {file_path}\n")
+            return
+
         self.output_text.insert(tk.END, f"\n📥 New file detected: {filename}\n")
         self.root.update()
 
         if os.path.getsize(file_path) > MAX_SIZE_BYTES:
             self.output_text.insert(tk.END, f"⏭️ Skipping {filename} (over {MAX_SIZE_MB}MB)\n")
-            self.root.update()
             return
 
         try:
-            with open(file_path, 'rb') as f:
+            temp_path = os.path.join(tempfile.gettempdir(), filename)
+            shutil.copy2(file_path, temp_path)
+        except Exception as e:
+            self.output_text.insert(tk.END, f"❌ Cannot copy file to temp: {e}\n")
+            return
+
+        try:
+            with open(temp_path, 'rb') as f:
                 files = {'file': (filename, f)}
                 params = {'apikey': API_KEY}
                 response = requests.post(SCAN_URL, files=files, params=params)
-
-                if response.status_code == 200:
-                    result = response.json()
-                    permalink = result.get("permalink", "N/A")
-                    resource = result.get("resource", "")
-                    self.output_text.insert(tk.END, f"✅ Sent! Link: {permalink}\n")
-
-                    for t in range(20, 0, -1):
-                        self.timer_label.config(text=f"⏳ Waiting {t} seconds for report...")
-                        self.root.update()
-                        time.sleep(1)
-                    self.timer_label.config(text="")
-
-                    report_params = {'apikey': API_KEY, 'resource': resource}
-                    report_response = requests.get(REPORT_URL, params=report_params)
-
-                    if report_response.status_code == 200:
-                        report_data = report_response.json()
-                        positives = report_data.get('positives', 'N/A')
-                        total = report_data.get('total', 'N/A')
-                        self.output_text.insert(tk.END, f"🧪 Report: {positives}/{total} engines detected malware.\n\n")
-                    else:
-                        self.output_text.insert(tk.END, "❌ Failed to get report.\n\n")
-                else:
-                    self.output_text.insert(tk.END, f"❌ Error during scan: {response.status_code}\n\n")
         except Exception as e:
-            self.output_text.insert(tk.END, f"❌ Error: {e}\n\n")
+            self.output_text.insert(tk.END, f"❌ Failed to send file: {e}\n")
+            return
+
+        if response.status_code == 200:
+            result = response.json()
+            permalink = result.get("permalink", "N/A")
+            resource = result.get("resource", "")
+            self.output_text.insert(tk.END, f"✅ Sent! Link: {permalink}\n")
+
+            for t in range(20, 0, -1):
+                self.timer_label.config(text=f"⏳ Waiting {t} seconds for report...")
+                self.root.update()
+                time.sleep(1)
+            self.timer_label.config(text="")
+
+            report_params = {'apikey': API_KEY, 'resource': resource}
+            report_response = requests.get(REPORT_URL, params=report_params)
+
+            if report_response.status_code == 200:
+                report_data = report_response.json()
+                positives = report_data.get('positives', 'N/A')
+                total = report_data.get('total', 'N/A')
+                self.output_text.insert(tk.END, f"🧪 Report: {positives}/{total} engines detected malware.\n\n")
+            else:
+                self.output_text.insert(tk.END, "❌ Failed to get report.\n\n")
+        else:
+            self.output_text.insert(tk.END, f"❌ Error during scan: {response.status_code}\n\n")
+
 
 # מסך פתיחה
 def launch_main_app(splash):
