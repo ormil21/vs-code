@@ -10,7 +10,6 @@ from watchdog.events import FileSystemEventHandler
 import tempfile  
 import shutil    
 
-# --- הגדרות ---
 API_KEY = '0e5f0c7f851381c8dbce5aad267fdec7d90f9aae38c14e21af93b353406a8a89'
 SCAN_URL = 'https://www.virustotal.com/vtapi/v2/file/scan'
 REPORT_URL = 'https://www.virustotal.com/vtapi/v2/file/report'
