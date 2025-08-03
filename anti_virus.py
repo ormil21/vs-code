@@ -7,6 +7,8 @@ from tkinter import filedialog, ttk
 from PIL import Image, ImageTk
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import tempfile  # ✅ נדרש לסריקה אוטומטית
+import shutil    # ✅ נדרש להעתקת קובץ ל-temp
 
 # --- הגדרות ---
 API_KEY = '0e5f0c7f851381c8dbce5aad267fdec7d90f9aae38c14e21af93b353406a8a89'
@@ -80,7 +82,6 @@ class VirusScannerGUI:
             self.output_text.delete(1.0, tk.END)
             self.output_text.insert(tk.END, f"Selected folder:\n{folder}\n\n")
 
-            # עצירת מעקב קודם אם יש
             if self.observer:
                 self.observer.stop()
 
@@ -164,7 +165,6 @@ class VirusScannerGUI:
         self.current_file_label.config(text="")
         self.scan_button.config(state="normal")
 
-    # סריקה אוטומטית לקובץ חדש
     def auto_scan_file(self, file_path):
         file_path = os.path.normpath(file_path)
         filename = os.path.basename(file_path)
