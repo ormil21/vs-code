@@ -7,8 +7,8 @@ from tkinter import filedialog, ttk
 from PIL import Image, ImageTk
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import tempfile  # ✅ נדרש לסריקה אוטומטית
-import shutil    # ✅ נדרש להעתקת קובץ ל-temp
+import tempfile  
+import shutil    
 
 # --- הגדרות ---
 API_KEY = '0e5f0c7f851381c8dbce5aad267fdec7d90f9aae38c14e21af93b353406a8a89'
